@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+</head>
+<body>
+    <a href="javascript:window.history.go(-1)">Back</a> <!-- Displayed on top of a potentially large JSON response, so it will remain visible -->
+    <h1>Sections</h1>
+    <form action='{{ url_for("recipes.search") }}' method="post" class="form-sections">
+        {% for id, info in sections.items() %}
+        <div class="form-sections">
+            <input type="checkbox" id="{{ id }}" name="{{ id }}">
+            <label for="{{ id }}">{{ info['name'] }}</label>
+        </div>
+        {% endfor %}
+        <div class="form-sections">
+            <input type="submit" value="Search">
+        </div>
+    </form>
+</body>
+</html>

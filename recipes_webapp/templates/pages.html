@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+</head>
+<body>
+    <a href="javascript:window.history.go(-1)">Back</a> <!-- Displayed on top of a potentially large JSON response, so it will remain visible -->
+    <h1>Pages</h1>
+    <ul>
+    {% for page in pages %}
+        <li><a href='{{ url_for("recipes.search_page", page=page[0], contentUrl=page[1]) }}'>{{ page[0] }}</a></li>
+    {% endfor %}
+    </ul>
+</body>
+</html>

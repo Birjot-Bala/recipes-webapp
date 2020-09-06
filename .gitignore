@@ -1,0 +1,26 @@
+# venv
+.venv/
+
+# vscode
+.vscode/
+
+# environment variables
+*.env
+
+# packages
+dist/
+build/
+*.egg-info/
+
+# cache and compiled
+*.pyc
+__pycache__/
+
+# session
+flask_session/
+
+# instance folder
+instance/
+
+# pytest
+.pytest_cache/
