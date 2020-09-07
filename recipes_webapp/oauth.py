@@ -22,14 +22,14 @@ def login():
 @bp.route(current_app.config['REDIRECT_PATH'])  # Its absolute URL must match your app's redirect_uri set in AAD
 def authorized():
     if request.args.get('state') != session.get("state"):
-        return redirect(url_for("index"))  # No-OP. Goes back to Index page
+        return redirect(url_for("recipes.index"))  # No-OP. Goes back to Index page
     if "error" in request.args:  # Authentication/Authorization failure
         return render_template("oauth/auth_error.html", result=request.args)
     if request.args.get('code'):
         cache = _load_cache()
         result = _build_msal_app(cache=cache).acquire_token_by_authorization_code(
             request.args['code'],
-            scopes=current_app.config.SCOPE,  # Misspelled scope would cause an HTTP 400 error here
+            scopes=current_app.config['SCOPE'],  # Misspelled scope would cause an HTTP 400 error here
             redirect_uri=url_for("oauth.authorized", _external=True))
         if "error" in result:
             return render_template("oauth/auth_error.html", result=result)
@@ -41,8 +41,8 @@ def authorized():
 def logout():
     session.clear()  # Wipe out user and its token cache from session
     return redirect(  # Also logout from your tenant's web session
-        current_app.config.AUTHORITY + "/oauth2/v2.0/logout" +
-        "?post_logout_redirect_uri=" + url_for("index", _external=True))
+        current_app.config['AUTHORITY'] + "/oauth2/v2.0/logout" +
+        "?post_logout_redirect_uri=" + url_for("recipes.index", _external=True))
 
 def get_token_from_cache(scope=None):
     cache = _load_cache()  # This web app maintains one cache per session
