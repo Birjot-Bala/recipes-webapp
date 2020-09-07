@@ -27,7 +27,6 @@ def app():
         "AUTHORITY": "https://login.microsoftonline.com/common",
     })
 
-
     yield app
 
     os.close(db_fd)
