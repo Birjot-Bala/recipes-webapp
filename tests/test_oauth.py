@@ -42,11 +42,24 @@ def test_authorized_acquire_token(client, app, mock_msal):
             'oauth' + app.config['REDIRECT_PATH'] + '?code=test&state=test'
         )
         # test that code has been ran by checking if session has been updated
-        assert session["user"] == 'mock_claim'
+        assert session["user"] == 'mock_user'
         # test for redirect back to index
         assert rv.status_code == 302
         assert rv.headers['Location'] == 'http://localhost/'
  
+
+def test_logout(client, app):
+    with client:
+        with client.session_transaction() as sess:
+            sess['user'] = 'mock_user'
+
+        rv = client.get('oauth/logout')
+        # test that session has been cleared
+        with pytest.raises(KeyError):
+            session['user']
+        # test for redirect to authority logout
+        assert rv.status_code == 302
+        assert app.config['AUTHORITY'] + "/oauth2/v2.0/logout" in rv.headers['Location']
 
 
     

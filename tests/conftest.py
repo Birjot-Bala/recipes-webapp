@@ -59,7 +59,7 @@ def mock_requests(monkeypatch):
 def mock_msal(monkeypatch):
     """Monkeypatch for MSAL library."""
     def mock_acquire_token(*args, **kwargs):
-        return {'access_token': 'mock_token', 'id_token_claims': 'mock_claim'}
+        return {'access_token': 'mock_token', 'id_token_claims': 'mock_user'}
     
     monkeypatch.setattr(
         msal.ClientApplication, 'acquire_token_by_authorization_code', 
