@@ -3,6 +3,7 @@ import tempfile
 
 import pytest
 import requests
+import msal
 
 from recipes_webapp import create_app
 
@@ -11,6 +12,12 @@ class MockResponse:
     @staticmethod
     def json():
         return {"mock_key": "mock_response"}
+        
+# class MockAuthClient:
+
+#     @staticmethod
+#     def acquire_token_by_authorization_code():
+#         return {'access_token': 'mock-token', 'id_token_claims': 'mock_claim'}
 
 @pytest.fixture
 def app():
@@ -29,6 +36,7 @@ def app():
 
     yield app
 
+    # clean up
     os.close(db_fd)
     os.unlink(db_path)
 
@@ -46,3 +54,14 @@ def mock_requests(monkeypatch):
         return MockResponse()
 
     monkeypatch.setattr(requests, "get", mock_get)
+
+@pytest.fixture
+def mock_msal(monkeypatch):
+    """Monkeypatch for MSAL library."""
+    def mock_acquire_token(*args, **kwargs):
+        return {'access_token': 'mock_token', 'id_token_claims': 'mock_claim'}
+    
+    monkeypatch.setattr(
+        msal.ClientApplication, 'acquire_token_by_authorization_code', 
+        mock_acquire_token
+    )
