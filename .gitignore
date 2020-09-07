@@ -24,3 +24,6 @@ instance/
 
 # pytest
 .pytest_cache/
+
+# coverage.py
+.coverage
