@@ -1,12 +1,12 @@
 DROP TABLE IF EXISTS sections;
-DROP TABLE IF EXISTS page;
+DROP TABLE IF EXISTS pages;
 
 CREATE TABLE sections (
     section_id TEXT PRIMARY KEY,
     title TEXT UNIQUE NOT NULL
 );
 
-CREATE TABLE page (
+CREATE TABLE pages (
     page_id INTEGER PRIMARY KEY AUTOINCREMENT,
     section_id TEXT NOT NULL,
     title TEXT UNIQUE NOT NULL,

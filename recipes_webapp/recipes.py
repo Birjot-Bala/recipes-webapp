@@ -1,4 +1,5 @@
 import requests
+import sqlite3
 
 import msal
 from flask import (
@@ -16,6 +17,42 @@ def index():
         return redirect(url_for("oauth.login"))
     return render_template('index.html', user=session["user"], version=msal.__version__)
 
+
+@bp.route('/update')
+def update():
+    token = get_token_from_cache(current_app.config['SCOPE'])
+    if not token:
+        return redirect(url_for("oauth.login"))
+
+    db = get_db()
+
+    graph_data = requests.get(  # Use token to call downstream service
+        current_app.config['ENDPOINT'],
+        headers={'Authorization': 'Bearer ' + token['access_token']},
+        params={'select':['id', 'name']},
+        ).json()
+    # insert sections into database
+    sections = [(section["id"], section["displayName"]) for section in graph_data["value"]]
+    db.execute('DELETE FROM sections')
+    db.executemany(
+        'INSERT INTO sections (section_id, title) VALUES (?, ?)', sections
+    )
+    # get all pages and store contentUrl
+    pages = []
+    for section in sections:
+        _get_pages(
+            section=section,
+            url=f'https://graph.microsoft.com/v1.0/me/onenote/sections/{section[0]}/pages',
+            token=token,
+            pages=pages
+        )
+    db.execute('DELETE FROM pages')
+    db.executemany(
+        'INSERT INTO pages (section_id, title, contentUrl) VALUES (?, ?, ?)',
+        pages
+    )
+    db.commit()
+    return redirect(url_for('recipes.index'))
 
 @bp.route("/form")
 def form():
@@ -61,7 +98,7 @@ def search_page(page):
     return render_template('test.html', title=page, content=recipe.text)
 
 
-def _get_pages(form, url, token, pages=[]):
+def _get_pages(section, url, token, pages=[]):
     # intial request
     pages_data = requests.get(
             url=url,
@@ -69,10 +106,10 @@ def _get_pages(form, url, token, pages=[]):
             params={'select':['title', 'contentUrl']}
         ).json()
     for page in pages_data['value']:
-        pages.append([page['title'], page['contentUrl']])
+        pages.append((section[0],) + (page['title'], page['contentUrl']))
     if '@odata.nextLink' in pages_data: # recursion to collect all pages
         _get_pages(
-            form=form, 
+            section=section, 
             url=pages_data['@odata.nextLink'], 
             token=token,
             pages=pages
