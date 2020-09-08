@@ -34,6 +34,8 @@ def create_app(test_config=None):
     
     with app.app_context():
         from recipes_webapp import oauth, db, recipes
+    
+    db.init_app(app)
 
     app.register_blueprint(oauth.bp)
     app.register_blueprint(recipes.bp)

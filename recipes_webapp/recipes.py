@@ -1,11 +1,12 @@
 import requests
 
+import msal
 from flask import (
     Blueprint, flash, g, redirect, render_template, request, url_for, session,
     current_app
 )
 from .oauth import get_token_from_cache
-import msal
+from .recipes_webapp import get_db
 
 bp = Blueprint('recipes', __name__)
 
