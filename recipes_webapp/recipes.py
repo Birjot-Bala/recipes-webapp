@@ -16,6 +16,7 @@ def index():
         return redirect(url_for("oauth.login"))
     return render_template('index.html', user=session["user"], version=msal.__version__)
 
+
 @bp.route("/form")
 def form():
     token = get_token_from_cache(current_app.config['SCOPE'])
@@ -28,6 +29,7 @@ def form():
         ).json()
     sections = {section["id"]:{"name":section["displayName"]} for section in graph_data["value"]}
     return render_template('form.html', sections=sections)
+
 
 @bp.route("/search", methods=["POST"])
 def search():
@@ -45,6 +47,7 @@ def search():
             )
     return render_template('pages.html', pages=pages)
 
+
 @bp.route("/search/<page>")
 def search_page(page):
     token = get_token_from_cache(current_app.config['SCOPE'])
@@ -56,6 +59,7 @@ def search_page(page):
         headers={'Authorization': 'Bearer ' + token['access_token']},
         )
     return render_template('test.html', title=page, content=recipe.text)
+
 
 def _get_pages(form, url, token, pages=[]):
     # intial request
