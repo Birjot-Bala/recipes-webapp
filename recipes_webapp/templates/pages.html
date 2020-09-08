@@ -8,7 +8,7 @@
     <h1>Pages</h1>
     <ul>
     {% for page in pages %}
-        <li><a href='{{ url_for("recipes.search_page", page=page[0], contentUrl=page[1]) }}'>{{ page[0] }}</a></li>
+        <li><a href='{{ url_for("recipes.search_page", page=page[2], contentUrl=page[3]) }}'>{{ page[2] }}</a></li>
     {% endfor %}
     </ul>
 </body>

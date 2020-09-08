@@ -7,10 +7,10 @@
     <a href="javascript:window.history.go(-1)">Back</a> <!-- Displayed on top of a potentially large JSON response, so it will remain visible -->
     <h1>Sections</h1>
     <form action='{{ url_for("recipes.search") }}' method="post" class="form-sections">
-        {% for id, info in sections.items() %}
+        {% for id, title in sections %}
         <div class="form-sections">
             <input type="checkbox" id="{{ id }}" name="{{ id }}">
-            <label for="{{ id }}">{{ info['name'] }}</label>
+            <label for="{{ id }}">{{ title }}</label>
         </div>
         {% endfor %}
         <div class="form-sections">

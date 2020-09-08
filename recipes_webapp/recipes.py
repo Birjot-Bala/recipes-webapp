@@ -59,12 +59,20 @@ def form():
     token = get_token_from_cache(current_app.config['SCOPE'])
     if not token:
         return redirect(url_for("oauth.login"))
-    graph_data = requests.get(  # Use token to call downstream service
-        current_app.config['ENDPOINT'],
-        headers={'Authorization': 'Bearer ' + token['access_token']},
-        params={'select':['id', 'name']},
-        ).json()
-    sections = {section["id"]:{"name":section["displayName"]} for section in graph_data["value"]}
+
+    db = get_db()
+    # select section ids and titles from db
+    sections = db.execute('SELECT * FROM sections').fetchall()
+
+    # graph_data = requests.get(  # Use token to call downstream service
+    #     current_app.config['ENDPOINT'],
+    #     headers={'Authorization': 'Bearer ' + token['access_token']},
+    #     params={'select':['id', 'name']},
+    #     ).json()
+    # sections = {section["id"]:{"name":section["displayName"]} for section in graph_data["value"]}
+    # return render_template('form.html', sections=sections)
+
+    
     return render_template('form.html', sections=sections)
 
 
@@ -73,15 +81,13 @@ def search():
     token = get_token_from_cache(current_app.config['SCOPE'])
     if not token:
         return redirect(url_for("oauth.login"))
+    
     if request.method == "POST":
+        db = get_db()
         pages = []
         for section_id in request.form:
-            _get_pages(
-                form=request.form,
-                url=f'https://graph.microsoft.com/v1.0/me/onenote/sections/{section_id}/pages',
-                token=token,
-                pages=pages
-            )
+            pages += db.execute('SELECT * FROM pages WHERE section_id=?', (section_id,)).fetchall()
+
     return render_template('pages.html', pages=pages)
 
 
