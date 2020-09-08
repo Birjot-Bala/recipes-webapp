@@ -6,7 +6,7 @@ from flask import (
     current_app
 )
 from .oauth import get_token_from_cache
-from .recipes_webapp import get_db
+from .db import get_db
 
 bp = Blueprint('recipes', __name__)
 
