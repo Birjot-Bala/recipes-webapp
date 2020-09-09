@@ -6,18 +6,16 @@ import requests
 import msal
 
 from recipes_webapp import create_app
+from recipes_webapp.db import get_db, init_db
 
 class MockResponse:
 
     @staticmethod
     def json():
         return {"mock_key": "mock_response"}
-        
-# class MockAuthClient:
 
-#     @staticmethod
-#     def acquire_token_by_authorization_code():
-#         return {'access_token': 'mock-token', 'id_token_claims': 'mock_claim'}
+with open(os.path.join(os.path.dirname(__file__), 'data.sql'), 'rb') as f:
+    _data_sql = f.read().decode('utf8')
 
 @pytest.fixture
 def app():
@@ -34,6 +32,10 @@ def app():
         "AUTHORITY": "https://login.microsoftonline.com/common",
     })
 
+    with app.app_context():
+        init_db()
+        get_db().executescript(_data_sql)
+
     yield app
 
     # clean up
@@ -46,6 +48,11 @@ def client(app):
     """A test client for the app."""
     return app.test_client()
             
+
+@pytest.fixture
+def runner(app):
+    """A test runner for the app."""
+    return app.test_cli_runner()
 
 @pytest.fixture
 def mock_requests(monkeypatch):
