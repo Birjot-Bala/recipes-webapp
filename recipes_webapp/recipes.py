@@ -7,7 +7,7 @@ from flask import (
     current_app
 )
 from .oauth import get_token_from_cache
-from .db import get_db
+from .db import get_db, modified_date_db
 
 bp = Blueprint('recipes', __name__)
 
@@ -15,11 +15,18 @@ bp = Blueprint('recipes', __name__)
 def index():
     if not session.get("user"):
         return redirect(url_for("oauth.login"))
-    return render_template('index.html', user=session["user"], version=msal.__version__)
+    db_date = modified_date_db()
+    return render_template(
+        'index.html', 
+        user=session["user"], 
+        version=msal.__version__,
+        db_date=db_date
+    )
 
 
 @bp.route('/update')
 def update():
+    """Update database with sections and pages"""
     token = get_token_from_cache(current_app.config['SCOPE'])
     if not token:
         return redirect(url_for("oauth.login"))
@@ -82,11 +89,13 @@ def search():
     if not token:
         return redirect(url_for("oauth.login"))
     
-    if request.method == "POST":
+    if request.method == "POST":    # if form data is sent
         db = get_db()
         pages = []
         for section_id in request.form:
-            pages += db.execute('SELECT * FROM pages WHERE section_id=?', (section_id,)).fetchall()
+            pages += db.execute(
+                'SELECT * FROM pages WHERE section_id=?', (section_id,)
+            ).fetchall()
 
     return render_template('pages.html', pages=pages)
 

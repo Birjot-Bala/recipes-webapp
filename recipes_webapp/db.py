@@ -1,4 +1,6 @@
 import sqlite3
+import os
+import time
 
 import click
 from flask import g, current_app
@@ -19,6 +21,11 @@ def close_db(e=None):
 
     if db is not None:
         db.close()
+
+
+def modified_date_db():
+    time_epochs = os.path.getmtime(current_app.config['DATABASE'])
+    return time.strftime('%Y-%m-%d %H:%M', time.localtime(time_epochs))
 
 
 def init_db():
