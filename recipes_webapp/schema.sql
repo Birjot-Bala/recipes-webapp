@@ -11,5 +11,6 @@ CREATE TABLE pages (
     section_id TEXT NOT NULL,
     title TEXT UNIQUE NOT NULL,
     contentUrl TEXT NOT NULL,
+    lastModifiedDateTime TEXT NOT NULL,
     FOREIGN KEY (section_id) REFERENCES sections (section_id)
 );

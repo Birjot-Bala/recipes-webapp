@@ -44,7 +44,7 @@ def update():
     db.executemany(
         'INSERT INTO sections (section_id, title) VALUES (?, ?)', sections
     )
-    # get all pages and store contentUrl
+    # get all pages and store section, page title, contentUrl and last modified date.
     pages = []
     for section in sections:
         _get_pages(
@@ -54,8 +54,7 @@ def update():
             pages=pages
         )
     db.execute('DELETE FROM pages')
-    db.executemany(
-        'INSERT INTO pages (section_id, title, contentUrl) VALUES (?, ?, ?)',
+    db.executemany('INSERT INTO pages (section_id, title, contentUrl, lastModifiedDateTime) VALUES (?, ?, ?, ?)',
         pages
     )
     db.commit()
@@ -70,15 +69,6 @@ def form():
     db = get_db()
     # select section ids and titles from db
     sections = db.execute('SELECT * FROM sections').fetchall()
-
-    # graph_data = requests.get(  # Use token to call downstream service
-    #     current_app.config['ENDPOINT'],
-    #     headers={'Authorization': 'Bearer ' + token['access_token']},
-    #     params={'select':['id', 'name']},
-    #     ).json()
-    # sections = {section["id"]:{"name":section["displayName"]} for section in graph_data["value"]}
-    # return render_template('form.html', sections=sections)
-
     
     return render_template('form.html', sections=sections)
 
@@ -118,10 +108,14 @@ def _get_pages(section, url, token, pages=[]):
     pages_data = requests.get(
             url=url,
             headers={'Authorization': 'Bearer ' + token['access_token']},
-            params={'select':['title', 'contentUrl']}
+            params={'select':['title', 'contentUrl', 'lastModifiedTime']}
         ).json()
+
     for page in pages_data['value']:
-        pages.append((section[0],) + (page['title'], page['contentUrl']))
+        pages.append((section[0],) 
+            + (page['title'], page['contentUrl'], page['lastModifiedDateTime'])
+        )
+ 
     if '@odata.nextLink' in pages_data: # recursion to collect all pages
         _get_pages(
             section=section, 
